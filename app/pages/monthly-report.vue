@@ -11,7 +11,9 @@ type MonthlyData = {
   employeeKpi: Array<{ id: number; name: string; completed: number; rating: number }>
 }
 
-const { data } = await useFetch<MonthlyData>('/api/kpi/dashboard')
+const { data } = await useFetch<MonthlyData>(apiUrl('/api/kpi/dashboard'), {
+  credentials: 'include',
+})
 
 useHead({
   title: 'Oylik hisobot | KPI tizimi',

@@ -15,7 +15,9 @@ type KpiData = {
   }>
 }
 
-const { data } = await useFetch<KpiData>('/api/kpi/dashboard')
+const { data } = await useFetch<KpiData>(apiUrl('/api/kpi/dashboard'), {
+  credentials: 'include',
+})
 
 const topEmployees = computed(() => (data.value?.employeeKpi || []).slice(0, 10))
 const ratingChart = computed(() => topEmployees.value.map((employee) => ({

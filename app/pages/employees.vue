@@ -14,7 +14,9 @@ type EmployeeData = {
   employeeStatusChart: Array<{ label: string; value: number }>
 }
 
-const { data } = await useFetch<EmployeeData>('/api/kpi/dashboard')
+const { data } = await useFetch<EmployeeData>(apiUrl('/api/kpi/dashboard'), {
+  credentials: 'include',
+})
 
 const onlineCount = computed(() => data.value?.employees.filter((employee) => employee.online).length || 0)
 const offlineCount = computed(() => (data.value?.employees.length || 0) - onlineCount.value)

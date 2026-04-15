@@ -50,7 +50,7 @@ const submitLogin = async () => {
 					alt=""
 					class="brand-logo"
 				/>
-				<span>KPI</span>
+				<span>RTTM KPI</span>
 			</div>
 
 			<div class="form-wrap">
@@ -99,11 +99,6 @@ const submitLogin = async () => {
 						{{ isLoading ? 'Tekshirilmoqda...' : 'Kirish' }}
 					</button>
 				</form>
-
-				<p class="signup-text">
-					Hisobingiz yo'qmi?
-					<NuxtLink to="/" class="link">Ro'yxatdan o'tish</NuxtLink>
-				</p>
 			</div>
 		</section>
 
@@ -357,12 +352,6 @@ h2 {
 	cursor: wait;
 	opacity: 0.78;
 	transform: none;
-}
-
-.signup-text {
-	margin: 18px 0 0;
-	color: var(--kpi-muted);
-	font-size: 14px;
 }
 
 .info-panel {

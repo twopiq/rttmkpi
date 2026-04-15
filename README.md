@@ -1,75 +1,59 @@
-# Nuxt Minimal Starter
+# RTTM KPI
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+Toshkent To'qimachilik va yengil sanoat instituti KPI monitoring tizimi. Hestia panelda Node.js ishlatilmagani uchun loyiha statik frontend sifatida `.output/public/` papkaga build qilinadi.
 
-## Setup
+## Talablar
 
-Make sure to install dependencies:
+- Build qilish uchun Node.js 24 yoki undan yuqori
+- Ishlayotgan tashqi backend API
+
+## Muhit Sozlamalari
+
+Build qilishdan oldin quyidagi environment o'zgaruvchilarini sozlang:
 
 ```bash
-# npm
+NUXT_PUBLIC_API_BASE_URL=https://example.com
+NUXT_PUBLIC_APP_NAME=KPI tizimi
+```
+
+`NUXT_PUBLIC_API_BASE_URL` login va KPI endpointlari joylashgan backend domeni bo'lishi kerak. Masalan, frontend `https://kpi.example.uz` bo'lsa, API `https://api.example.uz` yoki shu domen ichidagi `/api` bo'lishi mumkin.
+
+Backend quyidagi endpointlarni berishi kerak:
+
+- `POST /api/auth/login`
+- `GET /api/auth/me`
+- `POST /api/auth/logout`
+- `GET /api/kpi/dashboard`
+
+Agar API boshqa domenda bo'lsa, CORS `credentials` bilan ishlaydigan qilib sozlanadi.
+
+## Build
+
+```bash
 npm install
-
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
-npm run dev
-
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
 ```
 
-Locally preview production build:
+Builddan keyin statik fayllar `.output/public/` papkada bo'ladi.
+
+## Hestia Deploy
+
+`.output/public/` ichidagi fayllarni domenning `public_html` papkasiga joylang.
+
+API manzilini serverda `public_html/config.js` orqali berish mumkin:
+
+```js
+window.__KPI_API_BASE_URL__ = 'https://api.example.com';
+```
+
+Bo'sh qoldirilsa frontend shu domenning o'zidagi `/api/...` endpointlarga murojaat qiladi.
+
+Muhim: bu statik frontend. Hestia Node.js serverni ishga tushirmaydi, shuning uchun Nuxt `server/api` endpointlari deployda ishlamaydi. API Laravel/PHP yoki boshqa alohida backendda ishlashi kerak.
+
+SPA route uchun Hestia/nginx Apache fallback kerak bo'lishi mumkin: barcha route so'rovlari `index.html`ga qaytishi kerak.
+
+## Local Preview
 
 ```bash
-# npm
 npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
 ```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.

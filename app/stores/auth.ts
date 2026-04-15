@@ -83,9 +83,10 @@ export const useAuthStore = defineStore('auth', {
       this.error = null
 
       try {
-        const response = await $fetch<AuthResponse>('/api/auth/login', {
+        const response = await $fetch<AuthResponse>(apiUrl('/api/auth/login'), {
           method: 'POST',
           body: payload,
+          credentials: 'include',
         })
 
         this.user = response.user
@@ -107,8 +108,9 @@ export const useAuthStore = defineStore('auth', {
       this.status = 'loading'
 
       try {
-        const response = await $fetch<AuthResponse>('/api/auth/me', {
+        const response = await $fetch<AuthResponse>(apiUrl('/api/auth/me'), {
           headers,
+          credentials: 'include',
         })
 
         this.user = response.user
@@ -126,8 +128,9 @@ export const useAuthStore = defineStore('auth', {
       this.status = 'loading'
 
       try {
-        await $fetch('/api/auth/logout', {
+        await $fetch(apiUrl('/api/auth/logout'), {
           method: 'POST',
+          credentials: 'include',
         })
       } finally {
         this.user = null

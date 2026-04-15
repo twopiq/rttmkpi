@@ -21,7 +21,9 @@ type DashboardData = Awaited<ReturnType<typeof $fetch>> & {
   overview: { urgent: number }
 }
 
-const { data, pending, refresh } = await useFetch<DashboardData>('/api/kpi/dashboard')
+const { data, pending, refresh } = await useFetch<DashboardData>(apiUrl('/api/kpi/dashboard'), {
+  credentials: 'include',
+})
 
 const statusClass = (status: string) => ({
   completed: 'success',
