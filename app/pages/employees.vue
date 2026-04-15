@@ -15,7 +15,7 @@ type EmployeeData = {
 }
 
 const { data } = await useFetch<EmployeeData>(apiUrl('/api/kpi/dashboard'), {
-  credentials: 'include',
+  headers: apiAuthHeaders(),
 })
 
 const onlineCount = computed(() => data.value?.employees.filter((employee) => employee.online).length || 0)

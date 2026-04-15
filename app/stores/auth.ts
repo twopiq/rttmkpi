@@ -10,6 +10,7 @@ type AuthUser = {
 
 type AuthResponse = {
   user: AuthUser
+  token?: string
 }
 
 type LoginPayload = {
@@ -19,6 +20,7 @@ type LoginPayload = {
 }
 
 const STORAGE_KEY = 'kpi.auth.user'
+const TOKEN_STORAGE_KEY = 'kpi.auth.token'
 
 const getErrorMessage = (error: unknown) => {
   const payload = error as {
@@ -78,6 +80,18 @@ export const useAuthStore = defineStore('auth', {
       }
     },
 
+    persistToken(token: string | null) {
+      if (!import.meta.client) {
+        return
+      }
+
+      if (token) {
+        window.localStorage.setItem(TOKEN_STORAGE_KEY, token)
+      } else {
+        window.localStorage.removeItem(TOKEN_STORAGE_KEY)
+      }
+    },
+
     async login(payload: LoginPayload) {
       this.status = 'loading'
       this.error = null
@@ -86,17 +100,18 @@ export const useAuthStore = defineStore('auth', {
         const response = await $fetch<AuthResponse>(apiUrl('/api/auth/login'), {
           method: 'POST',
           body: payload,
-          credentials: 'include',
         })
 
         this.user = response.user
         this.initialized = true
+        this.persistToken(response.token || null)
         this.persistUser()
 
         return response.user
       } catch (error) {
         this.user = null
         this.error = getErrorMessage(error)
+        this.persistToken(null)
         this.persistUser()
         throw error
       } finally {
@@ -109,8 +124,10 @@ export const useAuthStore = defineStore('auth', {
 
       try {
         const response = await $fetch<AuthResponse>(apiUrl('/api/auth/me'), {
-          headers,
-          credentials: 'include',
+          headers: {
+            ...(headers as Record<string, string> | undefined),
+            ...apiAuthHeaders(),
+          },
         })
 
         this.user = response.user
@@ -130,12 +147,13 @@ export const useAuthStore = defineStore('auth', {
       try {
         await $fetch(apiUrl('/api/auth/logout'), {
           method: 'POST',
-          credentials: 'include',
+          headers: apiAuthHeaders(),
         })
       } finally {
         this.user = null
         this.initialized = true
         this.status = 'idle'
+        this.persistToken(null)
         this.persistUser()
       }
     },

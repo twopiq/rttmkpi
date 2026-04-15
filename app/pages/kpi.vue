@@ -16,7 +16,7 @@ type KpiData = {
 }
 
 const { data } = await useFetch<KpiData>(apiUrl('/api/kpi/dashboard'), {
-  credentials: 'include',
+  headers: apiAuthHeaders(),
 })
 
 const topEmployees = computed(() => (data.value?.employeeKpi || []).slice(0, 10))

@@ -12,7 +12,7 @@ type MonthlyData = {
 }
 
 const { data } = await useFetch<MonthlyData>(apiUrl('/api/kpi/dashboard'), {
-  credentials: 'include',
+  headers: apiAuthHeaders(),
 })
 
 useHead({

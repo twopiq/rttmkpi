@@ -9,6 +9,16 @@ export const apiUrl = (path: string) => {
   return `${baseUrl}${normalizedPath}`
 }
 
+export const apiAuthHeaders = () => {
+  if (!import.meta.client) {
+    return {}
+  }
+
+  const token = window.localStorage.getItem('kpi.auth.token')
+
+  return token ? { Authorization: `Bearer ${token}` } : {}
+}
+
 declare global {
   interface Window {
     __KPI_API_BASE_URL__?: string
