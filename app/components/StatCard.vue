@@ -45,7 +45,7 @@ const icon = computed(() => ({
 strong {
   display: block;
   margin-top: 16px;
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font-size: 31px;
   line-height: 1;
 }
@@ -61,18 +61,26 @@ p {
 
 .tone-primary .icon {
   background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  color: var(--kpi-primary);
 }
 
-.tone-secondary .icon,
+.tone-secondary .icon {
+  background: var(--kpi-warning-soft);
+  color: var(--kpi-warning);
+}
+
 .tone-accent .icon {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-3);
+  background: var(--kpi-success-soft);
+  color: var(--kpi-success);
 }
 
-.tone-deep .icon,
+.tone-deep .icon {
+  background: var(--kpi-danger-soft);
+  color: var(--kpi-danger);
+}
+
 .tone-soft .icon {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-1);
+  background: var(--kpi-accent-soft);
+  color: var(--kpi-accent);
 }
 </style>

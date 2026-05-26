@@ -34,7 +34,7 @@ p {
 }
 
 h2 {
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font-size: 18px;
   line-height: 1.25;
 }

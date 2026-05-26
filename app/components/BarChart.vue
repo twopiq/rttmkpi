@@ -19,7 +19,7 @@ const maxValue = computed(() => Math.max(1, ...props.items.map((item) => item.va
         <span
           :style="{
             height: `${Math.max(6, (item.value / maxValue) * 100)}%`,
-            backgroundColor: props.color || '#577DC0',
+            backgroundColor: props.color || 'var(--kpi-chart-2)',
           }"
         />
       </div>
@@ -36,7 +36,7 @@ const maxValue = computed(() => Math.max(1, ...props.items.map((item) => item.va
   min-height: 220px;
   gap: 18px;
   border-bottom: 1px solid var(--kpi-border);
-  background-image: linear-gradient(var(--kpi-blue-5) 1px, transparent 1px);
+  background-image: linear-gradient(var(--kpi-soft) 1px, transparent 1px);
   background-size: 100% 36px;
   padding: 8px 8px 0;
 }

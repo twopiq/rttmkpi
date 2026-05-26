@@ -3,7 +3,13 @@ const props = defineProps<{
   items: Array<{ label: string; value: number }>
 }>()
 
-const colors = ['#053591', '#1949A2', '#577DC0', '#063899', '#BBD0F3']
+const colors = [
+  'var(--kpi-chart-1)',
+  'var(--kpi-chart-2)',
+  'var(--kpi-chart-3)',
+  'var(--kpi-chart-4)',
+  'var(--kpi-chart-5)',
+]
 const total = computed(() => Math.max(1, props.items.reduce((sum, item) => sum + item.value, 0)))
 
 const segments = computed(() => {

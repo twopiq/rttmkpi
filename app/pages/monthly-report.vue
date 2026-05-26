@@ -49,7 +49,7 @@ useHead({
       </DashboardPanel>
 
       <DashboardPanel title="Oylik ko'rsatkichlar" subtitle="Asosiy indikatorlar taqqoslamasi">
-        <BarChart :items="data?.monthlyIndicators || []" color="#1949A2" />
+        <BarChart :items="data?.monthlyIndicators || []" color="var(--kpi-chart-1)" />
       </DashboardPanel>
     </section>
 
@@ -89,7 +89,7 @@ button {
   border: 1px solid var(--kpi-border);
   border-radius: 8px;
   background: var(--kpi-surface);
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font: inherit;
   font-weight: 800;
   padding: 0 14px;
@@ -97,8 +97,13 @@ button {
 
 button {
   border: 0;
-  background: var(--kpi-blue-3);
-  color: var(--kpi-surface);
+  background: var(--kpi-primary);
+  color: var(--kpi-inverse);
+  cursor: pointer;
+}
+
+button:hover {
+  background: var(--kpi-primary-hover);
 }
 
 .stats-grid {
@@ -131,8 +136,8 @@ td {
 }
 
 th {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  background: var(--kpi-soft);
+  color: var(--kpi-text);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 1px;

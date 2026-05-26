@@ -1,5 +1,6 @@
 <script setup lang="ts">
 const auth = useAuthStore()
+const { theme, themeLabel, themeButtonLabel, toggleTheme } = useTheme()
 
 const form = reactive({
 	login: '',
@@ -44,6 +45,17 @@ const submitLogin = async () => {
 <template>
 	<main class="login-shell">
 		<section class="login-panel" aria-label="Tizimga kirish">
+			<button
+				type="button"
+				class="theme-toggle"
+				:aria-label="themeButtonLabel"
+				:aria-pressed="theme === 'dark'"
+				@click="toggleTheme"
+			>
+				<span aria-hidden="true">{{ theme === 'dark' ? 'T' : 'K' }}</span>
+				{{ themeLabel }}
+			</button>
+
 			<div class="brand-mark">
 				<img
 					src="https://ttysi.uz/assets/public/images/logo_black.svg"
@@ -158,8 +170,43 @@ const submitLogin = async () => {
 .login-panel {
 	align-items: center;
 	background:
-		linear-gradient(125deg, rgba(187, 208, 243, 0.5), transparent 34%),
+		linear-gradient(125deg, var(--kpi-soft), transparent 34%),
 		var(--kpi-surface);
+}
+
+.theme-toggle {
+	position: absolute;
+	top: 34px;
+	right: clamp(24px, 6vw, 88px);
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	min-height: 36px;
+	border: 1px solid var(--kpi-border);
+	border-radius: 8px;
+	background: var(--kpi-surface);
+	color: var(--kpi-text);
+	cursor: pointer;
+	font: inherit;
+	font-size: 13px;
+	font-weight: 900;
+	padding: 0 12px;
+}
+
+.theme-toggle span {
+	display: inline-grid;
+	place-items: center;
+	width: 20px;
+	height: 20px;
+	border-radius: 6px;
+	background: var(--kpi-soft);
+	color: var(--kpi-primary);
+	font-size: 11px;
+}
+
+.theme-toggle:hover {
+	border-color: var(--kpi-primary);
+	background: var(--kpi-soft);
 }
 
 .brand-mark {
@@ -169,7 +216,7 @@ const submitLogin = async () => {
 	display: inline-flex;
 	align-items: center;
 	gap: 10px;
-	color: var(--kpi-blue-2);
+	color: var(--kpi-text);
 	font-size: 14px;
 	font-weight: 800;
 	letter-spacing: 0;
@@ -203,7 +250,7 @@ const submitLogin = async () => {
 h1,
 h2 {
 	margin: 0;
-	color: var(--kpi-blue-2);
+	color: var(--kpi-text);
 	font-size: 34px;
 	line-height: 1.15;
 }
@@ -229,7 +276,7 @@ h2 {
 	border: 1px solid var(--kpi-border);
 	border-radius: 8px;
 	background: var(--kpi-surface);
-	color: var(--kpi-blue-2);
+	color: var(--kpi-text);
 	cursor: pointer;
 	font-weight: 800;
 	letter-spacing: 0;
@@ -240,7 +287,7 @@ h2 {
 }
 
 .quick-actions button:hover {
-	border-color: var(--kpi-blue-3);
+	border-color: var(--kpi-primary);
 	transform: translateY(-1px);
 }
 
@@ -253,7 +300,7 @@ h2 {
 .login-form label {
 	display: grid;
 	gap: 7px;
-	color: var(--kpi-blue-3);
+	color: var(--kpi-text);
 	font-size: 13px;
 	font-weight: 700;
 }
@@ -265,7 +312,7 @@ h2 {
 	border: 1px solid var(--kpi-border);
 	border-radius: 8px;
 	background: var(--kpi-bg);
-	color: var(--kpi-blue-2);
+	color: var(--kpi-text);
 	font: inherit;
 	outline: none;
 	padding: 0 16px;
@@ -276,9 +323,14 @@ h2 {
 }
 
 .login-form input:focus {
-	border-color: var(--kpi-blue-3);
+	border-color: var(--kpi-primary);
 	background: var(--kpi-surface);
-	box-shadow: 0 0 0 4px rgba(25, 73, 162, 0.14);
+	box-shadow: 0 0 0 4px var(--kpi-focus);
+}
+
+.login-form input::placeholder {
+	color: var(--kpi-muted);
+	opacity: 0.86;
 }
 
 .form-row {
@@ -300,11 +352,11 @@ h2 {
 .remember input {
 	width: 16px;
 	height: 16px;
-	accent-color: var(--kpi-blue-3);
+	accent-color: var(--kpi-primary);
 }
 
 .link {
-	color: var(--kpi-blue-3);
+	color: var(--kpi-primary);
 	font-size: 14px;
 	font-weight: 700;
 	text-decoration: none;
@@ -316,10 +368,10 @@ h2 {
 
 .error-message {
 	margin: 0;
-	border: 1px solid var(--kpi-blue-5);
+	border: 1px solid var(--kpi-danger);
 	border-radius: 8px;
-	background: var(--kpi-blue-5);
-	color: var(--kpi-blue-4);
+	background: var(--kpi-danger-soft);
+	color: var(--kpi-danger);
 	font-size: 14px;
 	line-height: 1.45;
 	padding: 10px 12px;
@@ -331,8 +383,8 @@ h2 {
 	min-height: 50px;
 	border: 0;
 	border-radius: 8px;
-	background: var(--kpi-blue-3);
-	color: var(--kpi-surface);
+	background: var(--kpi-primary);
+	color: var(--kpi-inverse);
 	cursor: pointer;
 	font: inherit;
 	font-weight: 800;
@@ -344,7 +396,7 @@ h2 {
 }
 
 .submit-button:hover {
-	background: var(--kpi-blue-2);
+	background: var(--kpi-primary-hover);
 	transform: translateY(-1px);
 }
 
@@ -357,9 +409,9 @@ h2 {
 .info-panel {
 	align-items: center;
 	background:
-		linear-gradient(90deg, rgba(187, 208, 243, 0.14), transparent 26%),
-		var(--kpi-blue-2);
-	color: rgba(255, 255, 255, 0.9);
+		linear-gradient(90deg, rgba(20, 184, 166, 0.14), transparent 26%),
+		var(--kpi-sidebar);
+	color: #e5edf9;
 }
 
 .info-panel::before {
@@ -381,7 +433,7 @@ h2 {
 }
 
 .info-content h2 {
-	color: var(--kpi-surface);
+	color: #ffffff;
 	font-size: 40px;
 }
 
@@ -392,7 +444,7 @@ h2 {
 }
 
 .info-kicker {
-	color: var(--kpi-blue-5);
+	color: #99f6e4;
 }
 
 .outline-link {
@@ -404,7 +456,7 @@ h2 {
 	margin-top: 28px;
 	border: 1px solid rgba(255, 255, 255, 0.42);
 	border-radius: 8px;
-	color: var(--kpi-surface);
+	color: #ffffff;
 	font-size: 14px;
 	font-weight: 800;
 	letter-spacing: 0;
@@ -416,7 +468,7 @@ h2 {
 }
 
 .outline-link:hover {
-	border-color: var(--kpi-surface);
+	border-color: #ffffff;
 	background: rgba(255, 255, 255, 0.1);
 }
 
@@ -451,6 +503,10 @@ h2 {
 
 	.brand-mark {
 		left: 18px;
+	}
+
+	.theme-toggle {
+		right: 18px;
 	}
 
 	h1,

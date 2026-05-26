@@ -115,7 +115,9 @@ useHead({
               </td>
               <td>{{ ticket.date || '-' }}</td>
               <td>
-                <button type="button" class="action-btn">↗</button>
+                <button type="button" class="action-btn" aria-label="Murojaatni ochish">
+                  <span aria-hidden="true">&gt;</span>
+                </button>
               </td>
             </tr>
           </tbody>
@@ -160,7 +162,7 @@ select {
   border: 1px solid var(--kpi-border);
   border-radius: 8px;
   background: var(--kpi-surface);
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font: inherit;
   font-weight: 800;
   padding: 0 12px;
@@ -168,21 +170,25 @@ select {
 
 button {
   border: 0;
-  background: var(--kpi-blue-3);
-  color: var(--kpi-surface);
+  background: var(--kpi-primary);
+  color: var(--kpi-inverse);
   cursor: pointer;
 }
 
+button:hover {
+  background: var(--kpi-primary-hover);
+}
+
 .filter-waiting {
-  background: var(--kpi-blue-1);
+  background: var(--kpi-warning);
 }
 
 .filter-process {
-  background: var(--kpi-blue-3);
+  background: var(--kpi-primary);
 }
 
 .filter-done {
-  background: var(--kpi-blue-4);
+  background: var(--kpi-success);
 }
 
 .table-wrap {
@@ -204,8 +210,8 @@ td {
 }
 
 th {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  background: var(--kpi-soft);
+  color: var(--kpi-text);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 1px;
@@ -213,7 +219,7 @@ th {
 }
 
 td {
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font-size: 13px;
 }
 
@@ -225,7 +231,7 @@ td small {
 }
 
 .ticket-id {
-  color: var(--kpi-blue-3);
+  color: var(--kpi-primary);
 }
 
 .employee-pill,
@@ -240,40 +246,45 @@ td small {
 }
 
 .employee-pill {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  background: var(--kpi-accent-soft);
+  color: var(--kpi-accent);
 }
 
 .status-pill.success {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-4);
+  background: var(--kpi-success-soft);
+  color: var(--kpi-success);
 }
 
 .status-pill.warning {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-1);
+  background: var(--kpi-warning-soft);
+  color: var(--kpi-warning);
 }
 
 .status-pill.danger {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-3);
+  background: var(--kpi-danger-soft);
+  color: var(--kpi-danger);
 }
 
 .status-pill.process {
   background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  color: var(--kpi-primary);
 }
 
 .status-pill.waiting {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-1);
+  background: var(--kpi-warning-soft);
+  color: var(--kpi-warning);
 }
 
 .action-btn {
   width: 34px;
   min-height: 34px;
+  background: var(--kpi-soft);
+  color: var(--kpi-primary);
+  padding: 0;
+}
+
+.action-btn:hover {
   background: var(--kpi-blue-5);
-  color: var(--kpi-blue-3);
 }
 
 .refresh-btn {

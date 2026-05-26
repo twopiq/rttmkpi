@@ -39,7 +39,7 @@ useHead({
 
     <section class="employees-grid">
       <DashboardPanel title="Faol ishlar kesimi" subtitle="Har bir xodimdagi jarayondagi ishlar">
-        <BarChart :items="data?.employeeStatusChart || []" color="#577DC0" />
+        <BarChart :items="data?.employeeStatusChart || []" color="var(--kpi-chart-2)" />
       </DashboardPanel>
 
       <DashboardPanel title="Xodimlar holati">
@@ -99,7 +99,7 @@ strong {
   display: flex;
   align-items: center;
   gap: 8px;
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font-size: 14px;
 }
 
@@ -107,11 +107,11 @@ i {
   width: 9px;
   height: 9px;
   border-radius: 50%;
-  background: var(--kpi-blue-1);
+  background: var(--kpi-success);
 }
 
 i.offline {
-  background: var(--kpi-blue-5);
+  background: var(--kpi-border);
 }
 
 span {
@@ -131,8 +131,8 @@ button {
   min-height: 34px;
   border: 0;
   border-radius: 8px;
-  background: var(--kpi-blue-3);
-  color: var(--kpi-surface);
+  background: var(--kpi-primary);
+  color: var(--kpi-inverse);
   cursor: pointer;
   font: inherit;
   font-size: 12px;
@@ -141,7 +141,15 @@ button {
 }
 
 button.dark {
-  background: var(--kpi-blue-1);
+  background: var(--kpi-accent);
+}
+
+button:hover {
+  background: var(--kpi-primary-hover);
+}
+
+button.dark:hover {
+  background: var(--kpi-blue-4);
 }
 
 @media (max-width: 1100px) {

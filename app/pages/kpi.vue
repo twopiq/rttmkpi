@@ -42,7 +42,7 @@ useHead({
       </DashboardPanel>
 
       <DashboardPanel title="Reyting taqsimoti" subtitle="Top xodim o'rtacha reytingi">
-        <BarChart :items="ratingChart" color="#1949A2" />
+        <BarChart :items="ratingChart" color="var(--kpi-chart-1)" />
       </DashboardPanel>
     </section>
 
@@ -108,8 +108,8 @@ td {
 }
 
 th {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  background: var(--kpi-soft);
+  color: var(--kpi-text);
   font-size: 12px;
   font-weight: 900;
   letter-spacing: 1px;
@@ -117,7 +117,7 @@ th {
 }
 
 .rank {
-  color: var(--kpi-blue-2);
+  color: var(--kpi-text);
   font-weight: 900;
 }
 
@@ -126,8 +126,8 @@ th {
   align-items: center;
   min-height: 24px;
   border-radius: 8px;
-  background: var(--kpi-blue-5);
-  color: var(--kpi-blue-2);
+  background: var(--kpi-success-soft);
+  color: var(--kpi-success);
   font-size: 11px;
   font-weight: 900;
   padding: 0 10px;
@@ -144,7 +144,7 @@ th {
   display: block;
   height: 8px;
   border-radius: 8px;
-  background: var(--kpi-blue-1);
+  background: var(--kpi-accent);
 }
 
 .share::before {
@@ -153,7 +153,7 @@ th {
   grid-row: 1;
   height: 8px;
   border-radius: 8px;
-  background: var(--kpi-blue-5);
+  background: var(--kpi-soft);
 }
 
 .share span {
