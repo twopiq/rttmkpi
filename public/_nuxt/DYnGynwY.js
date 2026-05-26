@@ -1,0 +1,1 @@
+import{Y as r,Z as s,q as i}from"./dPT_qxdW.js";import{u as o}from"./B1aEvtll.js";const c=r(async()=>{let t,a;const e=o();if(e.initialized||([t,a]=s(()=>e.fetchCurrentUser(void 0)),await t,a()),!e.isAuthenticated)return i("/")});export{c as default};
