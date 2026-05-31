@@ -1,20 +1,10 @@
-# Nuxt dev/build outputs
+# Nuxt dev/build outputs (NOT public/ — that is the deploy target)
 .output
 .data
 .nuxt
 .nitro
 .cache
 dist
-
-# Generated static build output must stay out of source public/
-public/_nuxt
-public/index.html
-public/200.html
-public/404.html
-public/dashboard
-public/employees
-public/kpi
-public/monthly-report
 
 # Node dependencies
 node_modules

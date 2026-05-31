@@ -3,7 +3,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "build": "nuxt generate",
+    "build": "nuxt generate && node scripts/copy-to-public.cjs",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "npx serve .output/public",
