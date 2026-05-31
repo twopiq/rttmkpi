@@ -1,131 +1,123 @@
 <script setup lang="ts">
-definePageMeta({
-  middleware: 'auth',
-})
+definePageMeta({ middleware: 'auth' })
 
-type DashboardData = Awaited<ReturnType<typeof $fetch>> & {
+type Overview = {
+  total: number; waiting: number; inProgress: number; completed: number
+  overdue: number; complaints: number; urgent: number; slaPercent: number; rating: number
+}
+
+type DashboardData = {
+  overview: Overview
   cards: Array<{ key: string; label: string; value: string | number; tone: 'primary' | 'secondary' | 'accent' | 'deep' | 'soft' }>
   statusDistribution: Array<{ label: string; value: number }>
   ticketJournal: Array<{
-    id: string
-    customer: string
-    phone: string
-    location: string
-    title: string
-    description: string
-    assignee: string
-    status: string
-    statusLabel: string
-    date: string
+    dbId: number; id: string; customer: string; phone: string; location: string
+    title: string; assignee: string; priority: string; priorityLabel: string
+    status: string; statusLabel: string; date: string
   }>
-  overview: { urgent: number }
 }
 
-const { data, pending, refresh } = await useFetch<DashboardData>(apiUrl('/api/kpi/dashboard'), {
+const { data, pending, refresh, error } = useFetch<DashboardData>(apiUrl('/api/kpi/dashboard'), {
   headers: apiAuthHeaders(),
 })
 
+const priorityItems = computed(() => {
+  const dist = data.value?.statusDistribution || []
+  // Priority breakdown from overview
+  const o = data.value?.overview
+  if (!o) return []
+  return [
+    { label: 'Shoshilinch', value: o.urgent },
+    { label: 'Muddati o\'tgan', value: o.overdue },
+    { label: 'Kutilmoqda', value: o.waiting },
+    { label: 'Jarayonda', value: o.inProgress },
+    { label: 'Bajarildi', value: o.completed },
+  ]
+})
+
 const statusClass = (status: string) => ({
-  completed: 'success',
-  closed: 'success',
-  returned: 'warning',
-  rejected: 'danger',
-  in_progress: 'process',
-  assigned: 'process',
-  new: 'waiting',
+  completed: 'success', closed: 'success',
+  returned: 'warning', rejected: 'danger',
+  in_progress: 'process', assigned: 'process',
+  overdue: 'danger', new: 'waiting',
 }[status] || 'process')
 
-useHead({
-  title: 'Asosiy dashboard | KPI tizimi',
-})
+const priorityClass = (p: string) => ({
+  urgent: 'p-urgent', high: 'p-high', medium: 'p-medium', low: 'p-low',
+}[p] || '')
+
+useHead({ title: 'Dashboard | KPI tizimi' })
 </script>
 
 <template>
   <AppShell
     title="Asosiy dashboard"
-    subtitle="Murojaat, tezkor holatlar va real vaqt nazorati."
-    :badge="`Faol favqulodda ishlar: ${data?.overview.urgent || 0}`"
+    subtitle="Real vaqt nazorati va umumiy holat."
+    :badge="`Shoshilinch: ${data?.overview.urgent || 0}`"
   >
+    <p v-if="error" class="fetch-error" role="alert">
+      Xatolik yuz berdi.
+      <button type="button" @click="refresh()">Qayta urinish</button>
+    </p>
+
+    <!-- Stat cards -->
     <section class="stats-grid">
-      <StatCard
-        v-for="card in data?.cards"
-        :key="card.key"
-        :label="card.label"
-        :value="card.value"
-        :tone="card.tone"
-      />
+      <StatCard v-for="card in data?.cards" :key="card.key"
+        :label="card.label" :value="card.value" :tone="card.tone" />
     </section>
 
-    <section class="dashboard-grid">
-      <DashboardPanel title="Murojaatlar holati" subtitle="Joriy statistik taqsimot">
+    <!-- Charts row -->
+    <section class="charts-row">
+      <DashboardPanel title="Murojaatlar holati" subtitle="Status bo'yicha taqsimot">
         <DonutChart :items="data?.statusDistribution || []" />
       </DashboardPanel>
 
-      <DashboardPanel title="Filtrlash">
-        <div class="filter-actions">
-          <button type="button">Hammasi</button>
-          <button type="button" class="filter-waiting">Kutilmoqda</button>
-          <button type="button" class="filter-process">Jarayonda</button>
-          <button type="button" class="filter-done">Bajarildi</button>
-        </div>
-        <div class="date-row">
-          <input type="date">
-          <input type="date">
-          <button type="button">Filtrlash</button>
+      <DashboardPanel title="Holat ko'rsatkichlari" subtitle="Joriy davr">
+        <BarChart :items="priorityItems" :horizontal="true" color="var(--kpi-chart-1)" />
+      </DashboardPanel>
+
+      <DashboardPanel title="SLA bajarish" subtitle="Muddatida bajarilgan %">
+        <div class="sla-center">
+          <SlaGauge :percent="data?.overview.slaPercent ?? 0" label="SLA" />
+          <div class="sla-meta">
+            <div class="sla-row">
+              <span>Reyting</span>
+              <strong>{{ data?.overview.rating ?? 0 }} ★</strong>
+            </div>
+            <div class="sla-row">
+              <span>Shikoyatlar</span>
+              <strong>{{ data?.overview.complaints ?? 0 }}</strong>
+            </div>
+          </div>
         </div>
       </DashboardPanel>
     </section>
 
-    <DashboardPanel title="Murojaatlar jurnali">
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>ID</th>
-              <th>Mijoz</th>
-              <th>Muammo / tavsif</th>
-              <th>Mas'ul xodim</th>
-              <th>Status</th>
-              <th>Sana</th>
-              <th>Amal</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="ticket in data?.ticketJournal" :key="ticket.id">
-              <td><strong class="ticket-id">{{ ticket.id }}</strong></td>
-              <td>
-                <strong>{{ ticket.customer }}</strong>
-                <span>{{ ticket.phone }}</span>
-                <small>{{ ticket.location }}</small>
-              </td>
-              <td>
-                <strong>{{ ticket.title }}</strong>
-                <span>{{ ticket.description }}</span>
-              </td>
-              <td>
-                <select :value="ticket.assignee" aria-label="Mas'ul xodim">
-                  <option>{{ ticket.assignee }}</option>
-                </select>
-                <span class="employee-pill">{{ ticket.assignee }}</span>
-              </td>
-              <td>
-                <span class="status-pill" :class="statusClass(ticket.status)">
-                  {{ ticket.statusLabel }}
-                </span>
-              </td>
-              <td>{{ ticket.date || '-' }}</td>
-              <td>
-                <button type="button" class="action-btn" aria-label="Murojaatni ochish">
-                  <span aria-hidden="true">&gt;</span>
-                </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+    <!-- Recent tickets -->
+    <DashboardPanel title="So'nggi murojaatlar" subtitle="Oxirgi 10 ta">
+      <p v-if="!data?.ticketJournal?.length && !pending" class="empty-text">
+        Murojaatlar yo'q.
+      </p>
+      <div v-else class="ticket-cards">
+        <article v-for="ticket in data?.ticketJournal" :key="ticket.dbId" class="ticket-card">
+          <div class="tc-head">
+            <span class="tc-id">{{ ticket.id }}</span>
+            <span class="status-pill" :class="statusClass(ticket.status)">{{ ticket.statusLabel }}</span>
+          </div>
+          <p class="tc-title">{{ ticket.title }}</p>
+          <div class="tc-foot">
+            <span class="tc-customer">{{ ticket.customer }}</span>
+            <span class="priority-pill" :class="priorityClass(ticket.priority)">{{ ticket.priorityLabel }}</span>
+          </div>
+          <div class="tc-meta">
+            <span>{{ ticket.assignee }}</span>
+            <time>{{ ticket.date?.slice(0, 10) }}</time>
+          </div>
+        </article>
       </div>
     </DashboardPanel>
 
-    <p v-if="pending" class="loading-text">Ma'lumotlar yangilanmoqda...</p>
+    <p v-if="pending" class="loading-text">Yangilanmoqda...</p>
     <button class="refresh-btn" type="button" @click="refresh()">Yangilash</button>
   </AppShell>
 </template>
@@ -134,182 +126,183 @@ useHead({
 .stats-grid {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
-  gap: 16px;
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-.dashboard-grid {
+.charts-row {
   display: grid;
-  grid-template-columns: minmax(0, 1.55fr) minmax(340px, 1fr);
-  gap: 16px;
-  margin-top: 18px;
+  grid-template-columns: 1fr 1fr minmax(180px, 260px);
+  gap: 14px;
+  margin-bottom: 16px;
 }
 
-.filter-actions,
-.date-row {
+.sla-center {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  padding: 12px 0;
 }
 
-.date-row {
-  margin-top: 18px;
+.sla-meta { display: grid; gap: 12px; }
+
+.sla-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
-button,
-input,
-select {
-  min-height: 34px;
+.sla-row span {
+  color: var(--kpi-muted);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.sla-row strong {
+  color: var(--kpi-text);
+  font-size: 20px;
+  font-weight: 900;
+}
+
+/* Ticket cards */
+.ticket-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 12px;
+}
+
+.ticket-card {
   border: 1px solid var(--kpi-border);
   border-radius: 8px;
-  background: var(--kpi-surface);
-  color: var(--kpi-text);
-  font: inherit;
-  font-weight: 800;
-  padding: 0 12px;
+  background: var(--kpi-bg);
+  padding: 12px;
+  display: grid;
+  gap: 8px;
 }
 
-button {
-  border: 0;
-  background: var(--kpi-primary);
-  color: var(--kpi-inverse);
-  cursor: pointer;
-}
-
-button:hover {
-  background: var(--kpi-primary-hover);
-}
-
-.filter-waiting {
-  background: var(--kpi-warning);
-}
-
-.filter-process {
-  background: var(--kpi-primary);
-}
-
-.filter-done {
-  background: var(--kpi-success);
-}
-
-.table-wrap {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  min-width: 980px;
-}
-
-th,
-td {
-  border-bottom: 1px solid var(--kpi-border);
-  padding: 14px 10px;
-  text-align: left;
-  vertical-align: top;
-}
-
-th {
-  background: var(--kpi-soft);
-  color: var(--kpi-text);
-  font-size: 12px;
-  font-weight: 900;
-  letter-spacing: 1px;
-  text-transform: uppercase;
-}
-
-td {
-  color: var(--kpi-text);
-  font-size: 13px;
-}
-
-td span,
-td small {
-  display: block;
-  margin-top: 4px;
-  color: var(--kpi-muted);
-}
-
-.ticket-id {
-  color: var(--kpi-primary);
-}
-
-.employee-pill,
-.status-pill {
-  display: inline-flex;
+.tc-head {
+  display: flex;
   align-items: center;
-  min-height: 24px;
-  border-radius: 8px;
-  padding: 0 10px;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tc-id {
+  color: var(--kpi-primary);
   font-size: 11px;
   font-weight: 900;
 }
 
-.employee-pill {
-  background: var(--kpi-accent-soft);
-  color: var(--kpi-accent);
+.tc-title {
+  margin: 0;
+  color: var(--kpi-text);
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.4;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
 }
 
-.status-pill.success {
-  background: var(--kpi-success-soft);
-  color: var(--kpi-success);
+.tc-foot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.status-pill.warning {
-  background: var(--kpi-warning-soft);
-  color: var(--kpi-warning);
+.tc-customer {
+  color: var(--kpi-muted);
+  font-size: 11px;
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
-.status-pill.danger {
-  background: var(--kpi-danger-soft);
-  color: var(--kpi-danger);
+.tc-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
 }
 
-.status-pill.process {
-  background: var(--kpi-blue-5);
-  color: var(--kpi-primary);
+.tc-meta span, .tc-meta time {
+  color: var(--kpi-muted);
+  font-size: 11px;
 }
 
-.status-pill.waiting {
-  background: var(--kpi-warning-soft);
-  color: var(--kpi-warning);
+/* Pills */
+.status-pill, .priority-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  border-radius: 6px;
+  padding: 0 8px;
+  font-size: 10px;
+  font-weight: 900;
+  white-space: nowrap;
 }
 
-.action-btn {
-  width: 34px;
-  min-height: 34px;
-  background: var(--kpi-soft);
-  color: var(--kpi-primary);
-  padding: 0;
-}
+.status-pill.success { background: var(--kpi-success-soft); color: var(--kpi-success); }
+.status-pill.warning { background: var(--kpi-warning-soft); color: var(--kpi-warning); }
+.status-pill.danger  { background: var(--kpi-danger-soft);  color: var(--kpi-danger); }
+.status-pill.process { background: var(--kpi-blue-5);       color: var(--kpi-primary); }
+.status-pill.waiting { background: var(--kpi-warning-soft); color: var(--kpi-warning); }
 
-.action-btn:hover {
-  background: var(--kpi-blue-5);
-}
+.p-urgent { background: var(--kpi-danger-soft);  color: var(--kpi-danger); }
+.p-high   { background: var(--kpi-warning-soft); color: var(--kpi-warning); }
+.p-medium { background: var(--kpi-blue-5);       color: var(--kpi-primary); }
+.p-low    { background: var(--kpi-soft);         color: var(--kpi-muted); }
 
 .refresh-btn {
-  margin-top: 14px;
-}
-
-.loading-text {
-  margin: 14px 0 0;
-  color: var(--kpi-muted);
+  margin-top: 12px;
+  min-height: 34px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kpi-primary);
+  color: var(--kpi-inverse);
+  cursor: pointer;
+  font: inherit;
   font-weight: 800;
+  padding: 0 16px;
 }
 
-@media (max-width: 1180px) {
-  .stats-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
+.loading-text { margin: 12px 0 0; color: var(--kpi-muted); font-weight: 800; }
 
-  .dashboard-grid {
-    grid-template-columns: 1fr;
-  }
+.empty-text {
+  margin: 0; color: var(--kpi-muted); font-size: 14px;
+  padding: 24px 0; text-align: center;
 }
 
-@media (max-width: 560px) {
-  .stats-grid {
-    grid-template-columns: 1fr;
-  }
+.fetch-error {
+  display: flex; align-items: center; gap: 12px;
+  margin: 0 0 14px; border: 1px solid var(--kpi-danger);
+  border-radius: 8px; background: var(--kpi-danger-soft);
+  color: var(--kpi-danger); font-size: 14px; font-weight: 700; padding: 10px 14px;
+}
+
+.fetch-error button {
+  min-height: 28px; border: 1px solid var(--kpi-danger);
+  border-radius: 6px; background: transparent; color: var(--kpi-danger);
+  cursor: pointer; font: inherit; font-size: 12px; font-weight: 800; padding: 0 10px;
+}
+
+@media (max-width: 1200px) {
+  .stats-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .charts-row { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 760px) {
+  .stats-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .charts-row { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 400px) {
+  .stats-grid { grid-template-columns: 1fr; }
 }
 </style>

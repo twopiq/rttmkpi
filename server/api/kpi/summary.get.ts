@@ -1,10 +1,4 @@
 export default defineEventHandler(async () => {
-  const surveySummary = await fetchSurveyKpiSummary()
-
-  if (surveySummary) {
-    return surveySummary
-  }
-
   const sqliteSummary = fetchSurveySqliteKpiSummary()
 
   if (sqliteSummary) {

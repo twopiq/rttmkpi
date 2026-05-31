@@ -5,18 +5,27 @@ Toshkent To'qimachilik va yengil sanoat instituti KPI monitoring tizimi. Hestia 
 ## Talablar
 
 - Build qilish uchun Node.js 24 yoki undan yuqori
-- Ishlayotgan tashqi backend API
+- Lokal ishlatish uchun yonidagi `surovnoma_sayt/database/database.sqlite` bazasi
+- Production deploy uchun ishlayotgan tashqi backend API
 
 ## Muhit Sozlamalari
 
-Build qilishdan oldin quyidagi environment o'zgaruvchilarini sozlang:
+Lokal ishlatishda `.env.example` faylidan `.env` yarating:
 
 ```bash
-NUXT_PUBLIC_API_BASE_URL=https://example.com
-NUXT_PUBLIC_APP_NAME=KPI tizimi
+copy .env.example .env
 ```
 
-`NUXT_PUBLIC_API_BASE_URL` login va KPI endpointlari joylashgan backend domeni bo'lishi kerak. Masalan, frontend `https://kpi.example.uz` bo'lsa, API `https://api.example.uz` yoki shu domen ichidagi `/api` bo'lishi mumkin.
+Lokal uchun `NUXT_PUBLIC_API_BASE_URL` bo'sh qolishi kerak. Shunda frontend shu Nuxt dev server ichidagi `/api/...` endpointlarga murojaat qiladi:
+
+```bash
+NUXT_PUBLIC_API_BASE_URL=
+NUXT_PUBLIC_APP_NAME=KPI tizimi
+SURVEY_SQLITE_PATH=../surovnoma_sayt/database/database.sqlite
+KPI_SESSION_SECRET=local-kpi-session-secret
+```
+
+Production build qilishda `NUXT_PUBLIC_API_BASE_URL` login va KPI endpointlari joylashgan backend domeni bo'lishi kerak. Masalan, frontend `https://kpi.example.uz` bo'lsa, API `https://api.example.uz` yoki shu domen ichidagi `/api` bo'lishi mumkin.
 
 Backend quyidagi endpointlarni berishi kerak:
 
@@ -53,6 +62,21 @@ Muhim: bu statik frontend. Hestia Node.js serverni ishga tushirmaydi, shuning uc
 SPA route uchun Hestia/nginx Apache fallback kerak bo'lishi mumkin: barcha route so'rovlari `index.html`ga qaytishi kerak.
 
 ## Local Preview
+
+Lokal development rejimi:
+
+```bash
+npm install
+npm run dev
+```
+
+Keyin brauzerda oching:
+
+```bash
+http://localhost:3000
+```
+
+`npm run preview` faqat builddan keyingi statik fayllarni ko'rish uchun. Statik previewda Nuxt `server/api` endpointlari ishlamaydi, shuning uchun u rejimda API uchun `NUXT_PUBLIC_API_BASE_URL` yoki `public/config.js` orqali tashqi backend ko'rsatilishi kerak.
 
 ```bash
 npm run preview

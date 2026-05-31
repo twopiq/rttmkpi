@@ -1,6 +1,6 @@
 <script setup lang="ts">
 const auth = useAuthStore()
-const { theme, themeLabel, themeButtonLabel, toggleTheme } = useTheme()
+const { isDark, toggleTheme, themeButtonLabel } = useTheme()
 
 const form = reactive({
 	login: '',
@@ -8,28 +8,18 @@ const form = reactive({
 	remember: true,
 })
 
+const showPassword = ref(false)
 const isLoading = computed(() => auth.status === 'loading')
 
 useHead({
 	title: 'Tizimga kirish | KPI tizimi',
-	meta: [
-		{
-			name: 'description',
-			content: 'KPI monitoring tizimiga kirish',
-		},
-	],
+	meta: [{ name: 'description', content: 'KPI monitoring tizimiga kirish' }],
 })
 
 onMounted(async () => {
 	auth.hydrateFromStorage()
-
-	if (!auth.initialized) {
-		await auth.fetchCurrentUser()
-	}
-
-	if (auth.isAuthenticated) {
-		await navigateTo('/dashboard')
-	}
+	if (!auth.initialized) await auth.fetchCurrentUser()
+	if (auth.isAuthenticated) await navigateTo('/dashboard')
 })
 
 const submitLogin = async () => {
@@ -37,61 +27,101 @@ const submitLogin = async () => {
 		await auth.login(form)
 		await navigateTo('/dashboard')
 	} catch {
-		// Error text is rendered from Pinia state.
+		// xato Pinia state dan ko'rsatiladi
 	}
 }
 </script>
 
 <template>
 	<main class="login-shell">
-		<section class="login-panel" aria-label="Tizimga kirish">
-			<button
-				type="button"
-				class="theme-toggle"
-				:aria-label="themeButtonLabel"
-				:aria-pressed="theme === 'dark'"
-				@click="toggleTheme"
-			>
-				<span aria-hidden="true">{{ theme === 'dark' ? 'T' : 'K' }}</span>
-				{{ themeLabel }}
-			</button>
 
-			<div class="brand-mark">
-				<img
-					src="https://ttysi.uz/assets/public/images/logo_black.svg"
-					alt=""
-					class="brand-logo"
-				/>
-				<span>RTTM KPI</span>
+		<!-- ── Left: form panel ── -->
+		<section class="form-panel" aria-label="Tizimga kirish">
+
+			<div class="panel-top">
+				<div class="brand">
+					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+					</svg>
+					RTTM KPI
+				</div>
+
+				<button
+					type="button"
+					class="theme-btn"
+					:aria-label="themeButtonLabel"
+					@click="toggleTheme"
+				>
+					<svg v-if="isDark" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<circle cx="12" cy="12" r="5"/>
+						<line x1="12" y1="1" x2="12" y2="3"/>
+						<line x1="12" y1="21" x2="12" y2="23"/>
+						<line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+						<line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+						<line x1="1" y1="12" x2="3" y2="12"/>
+						<line x1="21" y1="12" x2="23" y2="12"/>
+						<line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+						<line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+					</svg>
+					<svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor"
+						stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+						<path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+					</svg>
+					{{ isDark ? 'Kun' : 'Tun' }}
+				</button>
 			</div>
 
 			<div class="form-wrap">
 				<p class="eyebrow">Toshkent To'qimachilik va yengil sanoat instituti</p>
 				<h1>Tizimga kirish</h1>
-				<p class="lead">
-					Shaxsiy kabinetingiz orqali ko'rsatkichlarni kuzating.
-				</p>
-				<form class="login-form" @submit.prevent="submitLogin">
-					<label>
+				<p class="lead">Shaxsiy kabinetingiz orqali KPI ko'rsatkichlarni kuzating.</p>
+
+				<form class="login-form" @submit.prevent="submitLogin" novalidate>
+					<label class="field">
 						<span>Login</span>
 						<input
 							v-model="form.login"
 							autocomplete="username"
 							name="login"
-							placeholder="Login"
+							placeholder="Login yoki email"
 							type="text"
+							:disabled="isLoading"
 						/>
 					</label>
 
-					<label>
+					<label class="field">
 						<span>Parol</span>
-						<input
-							v-model="form.password"
-							autocomplete="current-password"
-							name="password"
-							placeholder="Parol"
-							type="password"
-						/>
+						<div class="password-wrap">
+							<input
+								v-model="form.password"
+								autocomplete="current-password"
+								name="password"
+								placeholder="Parol"
+								:type="showPassword ? 'text' : 'password'"
+								:disabled="isLoading"
+							/>
+							<button
+								type="button"
+								class="eye-btn"
+								:aria-label="showPassword ? 'Parolni yashirish' : 'Parolni ko\'rsatish'"
+								:aria-pressed="showPassword"
+								@click="showPassword = !showPassword"
+							>
+								<svg v-if="!showPassword" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z"/>
+									<circle cx="12" cy="12" r="3"/>
+								</svg>
+								<svg v-else viewBox="0 0 24 24" fill="none" stroke="currentColor"
+									stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+									<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-10-8-10-8a18.45 18.45 0 0 1 5.06-5.94"/>
+									<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a18.5 18.5 0 0 1-2.16 3.19"/>
+									<line x1="2" y1="2" x2="22" y2="22"/>
+								</svg>
+							</button>
+						</div>
 					</label>
 
 					<div class="form-row">
@@ -99,205 +129,147 @@ const submitLogin = async () => {
 							<input v-model="form.remember" type="checkbox" />
 							<span>Eslab qolish</span>
 						</label>
-
-						<NuxtLink to="/" class="link">Parolni unutdingizmi?</NuxtLink>
 					</div>
 
-					<p v-if="auth.error" class="error-message" role="alert">
-						{{ auth.error }}
-					</p>
+					<p v-if="auth.error" class="error-msg" role="alert">{{ auth.error }}</p>
 
-					<button class="submit-button" :disabled="isLoading" type="submit">
+					<button class="submit-btn" :disabled="isLoading" type="submit">
+						<span v-if="isLoading" class="spinner" aria-hidden="true" />
 						{{ isLoading ? 'Tekshirilmoqda...' : 'Kirish' }}
 					</button>
 				</form>
 			</div>
+
 		</section>
 
-		<section class="info-panel" aria-label="KPI tizimi haqida">
+		<!-- ── Right: info panel ── -->
+		<section class="info-panel" aria-hidden="true">
 			<div class="info-content">
-				<p class="info-kicker">Monitoring</p>
-				<h2>KPI tizimi</h2>
-				<p>
-					Bugungi kunda oliy ta'lim muassasalarida samaradorlikni oshirish,
-					o'qituvchilar faoliyatini nazorat qilish va tahlil qilish uchun
-					zamonaviy axborot tizimlariga ehtiyoj ortib bormoqda.
-				</p>
-				<p>
-					Toshkent To'qimachilik va yengil sanoat institutida ichki xizmatlar,
-					murojaatlar va bajarilgan ishlar natijasini muntazam baholash
-					imkoniyati yaratiladi.
-				</p>
+				<p class="info-kicker">IT KPI Monitoring</p>
+				<h2>RTTM<br>Dashboard</h2>
+				<p>Xodimlar samaradorligi, murojaatlar holati va SLA ko'rsatkichlarini real vaqtda kuzating.</p>
+				<div class="info-stats">
+					<div class="stat">
+						<strong>Real vaqt</strong>
+						<span>Ma'lumotlar</span>
+					</div>
+					<div class="stat">
+						<strong>SLA</strong>
+						<span>Nazorat</span>
+					</div>
+					<div class="stat">
+						<strong>KPI</strong>
+						<span>Tahlil</span>
+					</div>
+				</div>
 			</div>
 		</section>
+
 	</main>
 </template>
 
 <style scoped>
-:global(*) {
-	box-sizing: border-box;
-}
-
-:global(body) {
-	margin: 0;
-	background: var(--kpi-bg);
-	color: var(--kpi-text);
-	font-family:
-		Inter,
-		ui-sans-serif,
-		system-ui,
-		-apple-system,
-		BlinkMacSystemFont,
-		'Segoe UI',
-		sans-serif;
-}
-
 .login-shell {
 	display: grid;
-	grid-template-columns: minmax(0, 1fr) minmax(360px, 1fr);
+	grid-template-columns: minmax(360px, 520px) 1fr;
 	min-height: 100vh;
-	overflow: hidden;
 }
 
-.login-panel,
-.info-panel {
-	position: relative;
+/* ── Form panel ──────────────────────────── */
+.form-panel {
 	display: flex;
-	min-height: 100vh;
-	padding: 46px clamp(24px, 6vw, 88px);
+	flex-direction: column;
+	background: var(--kpi-surface);
+	border-right: 1px solid var(--kpi-border);
+	padding: 0 clamp(24px, 6vw, 60px);
 }
 
-.login-panel {
+.panel-top {
+	display: flex;
 	align-items: center;
-	background:
-		linear-gradient(125deg, var(--kpi-soft), transparent 34%),
-		var(--kpi-surface);
+	justify-content: space-between;
+	height: 64px;
+	flex-shrink: 0;
 }
 
-.theme-toggle {
-	position: absolute;
-	top: 34px;
-	right: clamp(24px, 6vw, 88px);
-	display: inline-flex;
+.brand {
+	display: flex;
 	align-items: center;
 	gap: 8px;
-	min-height: 36px;
-	border: 1px solid var(--kpi-border);
-	border-radius: 8px;
-	background: var(--kpi-surface);
 	color: var(--kpi-text);
-	cursor: pointer;
-	font: inherit;
 	font-size: 13px;
 	font-weight: 900;
-	padding: 0 12px;
-}
-
-.theme-toggle span {
-	display: inline-grid;
-	place-items: center;
-	width: 20px;
-	height: 20px;
-	border-radius: 6px;
-	background: var(--kpi-soft);
-	color: var(--kpi-primary);
-	font-size: 11px;
-}
-
-.theme-toggle:hover {
-	border-color: var(--kpi-primary);
-	background: var(--kpi-soft);
-}
-
-.brand-mark {
-	position: absolute;
-	top: 34px;
-	left: clamp(24px, 6vw, 88px);
-	display: inline-flex;
-	align-items: center;
-	gap: 10px;
-	color: var(--kpi-text);
-	font-size: 14px;
-	font-weight: 800;
-	letter-spacing: 0;
+	letter-spacing: 0.5px;
 	text-transform: uppercase;
 }
 
-.brand-logo {
-	width: 28px;
-	height: 28px;
-	object-fit: contain;
+.brand svg {
+	width: 20px;
+	height: 20px;
+	stroke: var(--kpi-primary);
+}
+
+.theme-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 32px;
+	border: 1px solid var(--kpi-border);
+	border-radius: 8px;
+	background: var(--kpi-soft);
+	color: var(--kpi-muted);
+	cursor: pointer;
+	font: inherit;
+	font-size: 12px;
+	font-weight: 800;
+	padding: 0 10px;
+}
+
+.theme-btn svg { width: 14px; height: 14px; }
+
+.theme-btn:hover {
+	border-color: var(--kpi-primary);
+	color: var(--kpi-primary);
 }
 
 .form-wrap {
-	position: relative;
-	z-index: 1;
-	width: min(100%, 430px);
-	margin: 0 auto;
-	text-align: center;
+	flex: 1;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	padding: 40px 0 60px;
 }
 
-.eyebrow,
-.info-kicker {
+.eyebrow {
 	margin: 0 0 10px;
-	color: var(--kpi-muted);
-	font-size: 13px;
-	font-weight: 700;
-	letter-spacing: 0;
+	color: var(--kpi-primary);
+	font-size: 11px;
+	font-weight: 800;
+	letter-spacing: 1.5px;
 	text-transform: uppercase;
 }
 
-h1,
-h2 {
+h1 {
 	margin: 0;
 	color: var(--kpi-text);
-	font-size: 34px;
+	font-size: 30px;
+	font-weight: 900;
 	line-height: 1.15;
 }
 
 .lead {
-	margin: 10px auto 24px;
+	margin: 10px 0 28px;
 	color: var(--kpi-muted);
-	font-size: 15px;
+	font-size: 14px;
 	line-height: 1.6;
-}
-
-.quick-actions {
-	display: grid;
-	grid-template-columns: repeat(5, 44px);
-	justify-content: center;
-	gap: 14px;
-	margin-bottom: 26px;
-}
-
-.quick-actions button {
-	width: 44px;
-	height: 44px;
-	border: 1px solid var(--kpi-border);
-	border-radius: 8px;
-	background: var(--kpi-surface);
-	color: var(--kpi-text);
-	cursor: pointer;
-	font-weight: 800;
-	letter-spacing: 0;
-	text-transform: uppercase;
-	transition:
-		border-color 160ms ease,
-		transform 160ms ease;
-}
-
-.quick-actions button:hover {
-	border-color: var(--kpi-primary);
-	transform: translateY(-1px);
 }
 
 .login-form {
 	display: grid;
-	gap: 14px;
-	text-align: left;
+	gap: 16px;
 }
 
-.login-form label {
+.field {
 	display: grid;
 	gap: 7px;
 	color: var(--kpi-text);
@@ -305,48 +277,70 @@ h2 {
 	font-weight: 700;
 }
 
-.login-form input[type='text'],
-.login-form input[type='password'] {
+.field input[type='text'],
+.field input[type='password'] {
 	width: 100%;
-	height: 48px;
+	height: 46px;
 	border: 1px solid var(--kpi-border);
 	border-radius: 8px;
 	background: var(--kpi-bg);
 	color: var(--kpi-text);
 	font: inherit;
+	font-size: 14px;
 	outline: none;
 	padding: 0 16px;
-	transition:
-		border-color 160ms ease,
-		box-shadow 160ms ease,
-		background 160ms ease;
 }
 
-.login-form input:focus {
+.field input:focus {
 	border-color: var(--kpi-primary);
-	background: var(--kpi-surface);
-	box-shadow: 0 0 0 4px var(--kpi-focus);
+	box-shadow: 0 0 0 3px var(--kpi-focus);
 }
 
-.login-form input::placeholder {
-	color: var(--kpi-muted);
-	opacity: 0.86;
+.field input::placeholder { color: var(--kpi-muted); opacity: 0.7; }
+.field input:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.password-wrap {
+	position: relative;
 }
+
+.password-wrap input {
+	padding-right: 44px;
+}
+
+.eye-btn {
+	position: absolute;
+	right: 0;
+	top: 0;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 44px;
+	height: 46px;
+	border: 0;
+	background: transparent;
+	color: var(--kpi-muted);
+	cursor: pointer;
+	padding: 0;
+}
+
+.eye-btn svg { width: 17px; height: 17px; }
+.eye-btn:hover { color: var(--kpi-primary); }
 
 .form-row {
 	display: flex;
 	align-items: center;
-	justify-content: space-between;
 	gap: 12px;
-	margin: 2px 0 4px;
+	margin: -4px 0 -4px;
 }
 
 .remember {
-	display: inline-flex !important;
-	grid-template-columns: auto auto;
+	display: inline-flex;
 	align-items: center;
-	gap: 8px !important;
-	white-space: nowrap;
+	gap: 8px;
+	color: var(--kpi-muted);
+	font-size: 13px;
+	font-weight: 600;
+	cursor: pointer;
 }
 
 .remember input {
@@ -355,179 +349,138 @@ h2 {
 	accent-color: var(--kpi-primary);
 }
 
-.link {
-	color: var(--kpi-primary);
-	font-size: 14px;
-	font-weight: 700;
-	text-decoration: none;
-}
-
-.link:hover {
-	text-decoration: underline;
-}
-
-.error-message {
+.error-msg {
 	margin: 0;
 	border: 1px solid var(--kpi-danger);
 	border-radius: 8px;
 	background: var(--kpi-danger-soft);
 	color: var(--kpi-danger);
-	font-size: 14px;
-	line-height: 1.45;
-	padding: 10px 12px;
-	text-align: center;
+	font-size: 13px;
+	line-height: 1.5;
+	padding: 10px 14px;
 }
 
-.submit-button {
+.submit-btn {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
 	width: 100%;
-	min-height: 50px;
+	min-height: 48px;
 	border: 0;
 	border-radius: 8px;
 	background: var(--kpi-primary);
-	color: var(--kpi-inverse);
+	color: #fff;
 	cursor: pointer;
 	font: inherit;
-	font-weight: 800;
-	letter-spacing: 0;
+	font-size: 14px;
+	font-weight: 900;
+	letter-spacing: 0.5px;
 	text-transform: uppercase;
-	transition:
-		background 160ms ease,
-		transform 160ms ease;
+	margin-top: 4px;
 }
 
-.submit-button:hover {
-	background: var(--kpi-primary-hover);
-	transform: translateY(-1px);
+.submit-btn:hover:not(:disabled) { background: var(--kpi-primary-hover); }
+.submit-btn:disabled { cursor: wait; opacity: 0.7; }
+
+.spinner {
+	width: 16px;
+	height: 16px;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-top-color: #fff;
+	border-radius: 50%;
+	animation: spin 0.7s linear infinite;
 }
 
-.submit-button:disabled {
-	cursor: wait;
-	opacity: 0.78;
-	transform: none;
-}
+@keyframes spin { to { transform: rotate(360deg); } }
 
+/* ── Info panel ──────────────────────────── */
 .info-panel {
+	position: relative;
+	display: flex;
 	align-items: center;
+	justify-content: center;
 	background:
-		linear-gradient(90deg, rgba(20, 184, 166, 0.14), transparent 26%),
-		var(--kpi-sidebar);
-	color: #e5edf9;
+		radial-gradient(ellipse at 30% 40%, rgba(79, 142, 247, 0.18) 0%, transparent 60%),
+		radial-gradient(ellipse at 70% 70%, rgba(45, 212, 191, 0.12) 0%, transparent 50%),
+		var(--kpi-topnav);
+	overflow: hidden;
+	padding: 40px;
 }
 
 .info-panel::before {
+	content: '';
 	position: absolute;
 	inset: 0;
 	background-image:
-		linear-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
-		linear-gradient(90deg, rgba(255, 255, 255, 0.05) 1px, transparent 1px);
-	background-size: 32px 32px;
-	content: '';
-	mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.38), rgba(0, 0, 0, 0.92));
+		linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+		linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+	background-size: 40px 40px;
 }
 
 .info-content {
 	position: relative;
-	z-index: 1;
-	width: min(100%, 450px);
-	margin: 0 auto;
-}
-
-.info-content h2 {
-	color: #ffffff;
-	font-size: 40px;
-}
-
-.info-content p {
-	margin: 18px 0 0;
-	font-size: 17px;
-	line-height: 1.72;
+	max-width: 420px;
 }
 
 .info-kicker {
-	color: #99f6e4;
-}
-
-.outline-link {
-	display: inline-flex;
-	align-items: center;
-	justify-content: center;
-	min-width: 190px;
-	min-height: 48px;
-	margin-top: 28px;
-	border: 1px solid rgba(255, 255, 255, 0.42);
-	border-radius: 8px;
-	color: #ffffff;
-	font-size: 14px;
+	margin: 0 0 12px;
+	color: var(--kpi-primary);
+	font-size: 11px;
 	font-weight: 800;
-	letter-spacing: 0;
-	text-decoration: none;
+	letter-spacing: 2px;
 	text-transform: uppercase;
-	transition:
-		background 160ms ease,
-		border-color 160ms ease;
 }
 
-.outline-link:hover {
-	border-color: #ffffff;
-	background: rgba(255, 255, 255, 0.1);
+.info-content h2 {
+	margin: 0 0 20px;
+	color: #fff;
+	font-size: 48px;
+	font-weight: 900;
+	line-height: 1.05;
 }
 
+.info-content > p {
+	margin: 0 0 32px;
+	color: rgba(255, 255, 255, 0.55);
+	font-size: 16px;
+	line-height: 1.7;
+}
+
+.info-stats {
+	display: flex;
+	gap: 32px;
+}
+
+.stat strong {
+	display: block;
+	color: #fff;
+	font-size: 18px;
+	font-weight: 900;
+}
+
+.stat span {
+	display: block;
+	margin-top: 3px;
+	color: rgba(255, 255, 255, 0.45);
+	font-size: 12px;
+	font-weight: 700;
+	letter-spacing: 0.5px;
+	text-transform: uppercase;
+}
+
+/* ── Responsive ──────────────────────────── */
 @media (max-width: 860px) {
-	.login-shell {
-		grid-template-columns: 1fr;
-	}
-
-	.login-panel,
-	.info-panel {
-		min-height: auto;
-	}
-
-	.login-panel {
-		min-height: 100vh;
-		padding-top: 96px;
-		padding-bottom: 58px;
-	}
-
-	.info-panel {
-		padding-top: 54px;
-		padding-bottom: 58px;
+	.login-shell { grid-template-columns: 1fr; }
+	.info-panel { display: none; }
+	.form-panel {
+		border-right: 0;
+		padding: 0 24px;
 	}
 }
 
-@media (max-width: 520px) {
-	.login-panel,
-	.info-panel {
-		padding-right: 18px;
-		padding-left: 18px;
-	}
-
-	.brand-mark {
-		left: 18px;
-	}
-
-	.theme-toggle {
-		right: 18px;
-	}
-
-	h1,
-	h2,
-	.info-content h2 {
-		font-size: 30px;
-	}
-
-	.quick-actions {
-		grid-template-columns: repeat(5, minmax(34px, 40px));
-		gap: 8px;
-	}
-
-	.quick-actions button {
-		width: 40px;
-		height: 40px;
-	}
-
-	.form-row {
-		align-items: flex-start;
-		flex-direction: column;
-	}
+@media (max-width: 480px) {
+	.form-panel { padding: 0 16px; }
+	h1 { font-size: 26px; }
 }
 </style>

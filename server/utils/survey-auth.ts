@@ -41,12 +41,13 @@ const findAdminByIdentifier = (db: DatabaseSync, identifier: string) => {
     from users
     inner join model_has_roles on model_has_roles.model_id = users.id
     inner join roles on roles.id = model_has_roles.role_id
-    where roles.name = 'admin'
+    where roles.name in ('admin', 'manager')
       and users.is_active = 1
       and (
         lower(users.email) = lower(?)
         or lower(coalesce(users.login, '')) = lower(?)
       )
+    order by case roles.name when 'admin' then 0 else 1 end
     limit 1
   `).get(identifier, identifier) as SurveyAdminRow | undefined
 }
@@ -68,7 +69,7 @@ export const authenticateSurveyAdmin = (identifier: string, password: string): S
     if (!admin) {
       return {
         ok: false,
-        message: 'Faqat so\'rovnoma tizimidagi admin foydalanuvchi kira oladi',
+        message: 'Faqat so\'rovnoma tizimidagi admin va rahbar foydalanuvchilar kira oladi',
       }
     }
 

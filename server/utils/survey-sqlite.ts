@@ -76,6 +76,17 @@ const rating = (completedCount: number, onTimeCount: number) => {
   return ((onTimeCount / completedCount) * 5).toFixed(1)
 }
 
+const executorTicketWhere = `
+      exists (
+        select 1
+        from users executor_users
+        inner join model_has_roles executor_role_links on executor_role_links.model_id = executor_users.id
+        inner join roles executor_roles on executor_roles.id = executor_role_links.role_id
+        where executor_users.id = tickets.assigned_executor_id
+          and executor_roles.name = 'executor'
+      )
+`
+
 export const fetchSurveySqliteKpiSummary = (): KpiSummary | null => {
   const sqlitePath = resolveSqlitePath()
 
@@ -88,36 +99,41 @@ export const fetchSurveySqliteKpiSummary = (): KpiSummary | null => {
   })
 
   try {
-    const totalTickets = scalar(db, 'select count(*) as value from tickets')
+    const totalTickets = scalar(db, `select count(*) as value from tickets where ${executorTicketWhere}`)
     const completedTickets = scalar(
       db,
-      "select count(*) as value from tickets where status in ('completed', 'closed') or completed_at is not null",
+      `select count(*) as value from tickets where ${executorTicketWhere} and (status in ('completed', 'closed') or completed_at is not null)`,
     )
     const activeTickets = scalar(
       db,
-      "select count(*) as value from tickets where status in ('new', 'assigned', 'in_progress', 'returned')",
+      `select count(*) as value from tickets where ${executorTicketWhere} and status in ('new', 'assigned', 'in_progress', 'returned')`,
     )
     const returnedTickets = scalar(
       db,
-      "select count(*) as value from tickets where status = 'returned'",
+      `select count(*) as value from tickets where ${executorTicketWhere} and status = 'returned'`,
     )
     const overdueTickets = scalar(
       db,
-      "select count(*) as value from tickets where deadline_at is not null and datetime(deadline_at) < datetime('now') and status not in ('completed', 'closed', 'rejected')",
+      `select count(*) as value from tickets where ${executorTicketWhere} and deadline_at is not null and datetime(deadline_at) < datetime('now') and status not in ('completed', 'closed', 'rejected')`,
     )
     const onTimeTickets = scalar(
       db,
-      "select count(*) as value from tickets where completed_at is not null and (deadline_at is null or datetime(completed_at) <= datetime(deadline_at))",
+      `select count(*) as value from tickets where ${executorTicketWhere} and completed_at is not null and (deadline_at is null or datetime(completed_at) <= datetime(deadline_at))`,
     )
     const complaintTickets = scalar(
       db,
-      "select count(distinct ticket_id) as value from ticket_status_histories where to_status in ('returned', 'rejected')",
+      `select count(distinct ticket_status_histories.ticket_id) as value
+      from ticket_status_histories
+      inner join tickets on tickets.id = ticket_status_histories.ticket_id
+      where ${executorTicketWhere}
+        and ticket_status_histories.to_status in ('returned', 'rejected')`,
     )
 
     const employeeResults = db.prepare(`
       select coalesce(users.name, 'Biriktirilmagan') as label, count(tickets.id) as value
       from tickets
-      left join users on users.id = tickets.assigned_executor_id
+      inner join users on users.id = tickets.assigned_executor_id
+      where ${executorTicketWhere}
       group by tickets.assigned_executor_id, users.name
       order by value desc, label asc
       limit 8
@@ -126,6 +142,7 @@ export const fetchSurveySqliteKpiSummary = (): KpiSummary | null => {
     const statusRows = db.prepare(`
       select status, count(*) as value
       from tickets
+      where ${executorTicketWhere}
       group by status
       order by value desc, status asc
     `).all() as CountRow[]
@@ -133,6 +150,7 @@ export const fetchSurveySqliteKpiSummary = (): KpiSummary | null => {
     const priorityRows = db.prepare(`
       select priority, count(*) as value
       from tickets
+      where ${executorTicketWhere}
       group by priority
       order by value desc, priority asc
     `).all() as CountRow[]

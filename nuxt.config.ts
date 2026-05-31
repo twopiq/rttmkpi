@@ -4,11 +4,7 @@ export default defineNuxtConfig({
   compatibilityDate: '2025-07-15',
   app: {
     head: {
-      script: [
-        {
-          src: '/config.js',
-        },
-      ],
+      script: process.env.NODE_ENV === 'production' ? [{ src: '/config.js' }] : [],
     },
   },
   devtools: { enabled: process.env.NODE_ENV !== 'production' },

@@ -1,5 +1,6 @@
 <template>
   <NuxtRouteAnnouncer />
+  <NuxtLoadingIndicator color="var(--kpi-primary)" />
   <NuxtPage />
 </template>
 
@@ -8,7 +9,7 @@ useHead({
   script: [
     {
       innerHTML:
-        "try{var t=localStorage.getItem('rttm-kpi-theme');if(t!=='dark'&&t!=='light'){t=window.matchMedia&&window.matchMedia('(prefers-color-scheme: dark)').matches?'dark':'light'}document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}",
+        "try{var t=localStorage.getItem('rttm-kpi-theme');if(t!=='dark'&&t!=='light'){t='dark'}document.documentElement.dataset.theme=t;document.documentElement.style.colorScheme=t}catch(e){}",
       tagPosition: 'head',
     },
   ],
@@ -16,72 +17,76 @@ useHead({
 </script>
 
 <style>
+/* ─── Default: DARK ─────────────────────────────────── */
 :root {
-  --kpi-blue-1: #2563EB;
-  --kpi-blue-2: #172554;
-  --kpi-blue-3: #1D4ED8;
-  --kpi-blue-4: #0F766E;
-  --kpi-blue-5: #DBEAFE;
-  --kpi-bg: #F4F7FB;
-  --kpi-surface: #FFFFFF;
-  --kpi-surface-strong: #F8FAFC;
-  --kpi-sidebar: #10213F;
-  --kpi-border: #CBD5E1;
-  --kpi-text: #0F172A;
-  --kpi-muted: #475569;
-  --kpi-inverse: #FFFFFF;
-  --kpi-primary: #1D4ED8;
-  --kpi-primary-hover: #1E40AF;
-  --kpi-accent: #0F766E;
-  --kpi-accent-soft: #CCFBF1;
-  --kpi-success: #047857;
-  --kpi-success-soft: #D1FAE5;
-  --kpi-warning: #B45309;
-  --kpi-warning-soft: #FEF3C7;
-  --kpi-danger: #BE123C;
-  --kpi-danger-soft: #FFE4E6;
-  --kpi-soft: #E2E8F0;
-  --kpi-focus: rgba(29, 78, 216, 0.22);
-  --kpi-shadow: 0 14px 34px rgba(15, 23, 42, 0.09);
-  --kpi-chart-1: #1D4ED8;
-  --kpi-chart-2: #0F766E;
-  --kpi-chart-3: #B45309;
-  --kpi-chart-4: #7C3AED;
-  --kpi-chart-5: #BE123C;
+  --kpi-topnav:        #050d1e;
+  --kpi-bg:            #0b1120;
+  --kpi-surface:       #111827;
+  --kpi-surface-2:     #172033;
+  --kpi-border:        #1e2d45;
+  --kpi-text:          #e5edf9;
+  --kpi-muted:         #8fa3bb;
+  --kpi-inverse:       #050d1e;
+
+  --kpi-primary:       #4f8ef7;
+  --kpi-primary-hover: #6fa3f9;
+  --kpi-accent:        #2dd4bf;
+  --kpi-accent-soft:   #0d2e2b;
+
+  --kpi-success:       #34d399;
+  --kpi-success-soft:  #0a2e22;
+  --kpi-warning:       #fbbf24;
+  --kpi-warning-soft:  #2e1f05;
+  --kpi-danger:        #f87171;
+  --kpi-danger-soft:   #2e0f0f;
+
+  --kpi-soft:          #1a2740;
+  --kpi-focus:         rgba(79, 142, 247, 0.28);
+  --kpi-shadow:        0 4px 24px rgba(0, 0, 0, 0.4);
+
+  --kpi-chart-1: #4f8ef7;
+  --kpi-chart-2: #2dd4bf;
+  --kpi-chart-3: #fbbf24;
+  --kpi-chart-4: #a78bfa;
+  --kpi-chart-5: #f87171;
+
+  --kpi-blue-5: #1a2740;
 }
 
-:root[data-theme='dark'] {
-  --kpi-blue-1: #60A5FA;
-  --kpi-blue-2: #E5EDF9;
-  --kpi-blue-3: #93C5FD;
-  --kpi-blue-4: #5EEAD4;
-  --kpi-blue-5: #1E3A5F;
-  --kpi-bg: #0B1120;
-  --kpi-surface: #111827;
-  --kpi-surface-strong: #172033;
-  --kpi-sidebar: #07111F;
-  --kpi-border: #334155;
-  --kpi-text: #E5EDF9;
-  --kpi-muted: #B6C3D1;
-  --kpi-inverse: #07111F;
-  --kpi-primary: #60A5FA;
-  --kpi-primary-hover: #93C5FD;
-  --kpi-accent: #5EEAD4;
-  --kpi-accent-soft: #143C3A;
-  --kpi-success: #34D399;
-  --kpi-success-soft: #123A2C;
-  --kpi-warning: #FBBF24;
-  --kpi-warning-soft: #3F2B0B;
-  --kpi-danger: #FB7185;
-  --kpi-danger-soft: #431923;
-  --kpi-soft: #1E293B;
-  --kpi-focus: rgba(96, 165, 250, 0.28);
-  --kpi-shadow: 0 18px 42px rgba(0, 0, 0, 0.32);
-  --kpi-chart-1: #60A5FA;
-  --kpi-chart-2: #5EEAD4;
-  --kpi-chart-3: #FBBF24;
-  --kpi-chart-4: #C4B5FD;
-  --kpi-chart-5: #FB7185;
+/* ─── Light override ─────────────────────────────────── */
+[data-theme='light'] {
+  --kpi-topnav:        #10213f;
+  --kpi-bg:            #f0f4fa;
+  --kpi-surface:       #ffffff;
+  --kpi-surface-2:     #f8fafc;
+  --kpi-border:        #d1dce8;
+  --kpi-text:          #0f172a;
+  --kpi-muted:         #4e6680;
+  --kpi-inverse:       #ffffff;
+
+  --kpi-primary:       #1d4ed8;
+  --kpi-primary-hover: #1e40af;
+  --kpi-accent:        #0f766e;
+  --kpi-accent-soft:   #ccfbf1;
+
+  --kpi-success:       #047857;
+  --kpi-success-soft:  #d1fae5;
+  --kpi-warning:       #b45309;
+  --kpi-warning-soft:  #fef3c7;
+  --kpi-danger:        #be123c;
+  --kpi-danger-soft:   #ffe4e6;
+
+  --kpi-soft:          #e2eaf4;
+  --kpi-focus:         rgba(29, 78, 216, 0.2);
+  --kpi-shadow:        0 4px 20px rgba(15, 23, 42, 0.08);
+
+  --kpi-chart-1: #1d4ed8;
+  --kpi-chart-2: #0f766e;
+  --kpi-chart-3: #b45309;
+  --kpi-chart-4: #7c3aed;
+  --kpi-chart-5: #be123c;
+
+  --kpi-blue-5: #dbeafe;
 }
 
 html {
@@ -89,9 +94,26 @@ html {
 }
 
 body {
+  margin: 0;
+  background: var(--kpi-bg);
+  color: var(--kpi-text);
+  font-family:
+    Inter,
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    sans-serif;
   transition:
-    background 180ms ease,
-    color 180ms ease;
+    background 200ms ease,
+    color 200ms ease;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
 }
 
 button,
@@ -99,11 +121,11 @@ a,
 input,
 select {
   transition:
-    background 160ms ease,
-    border-color 160ms ease,
-    box-shadow 160ms ease,
-    color 160ms ease,
-    transform 160ms ease;
+    background 150ms ease,
+    border-color 150ms ease,
+    box-shadow 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
 }
 
 button:focus-visible,

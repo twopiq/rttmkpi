@@ -25,10 +25,11 @@ export default defineEventHandler(async (event) => {
     })
   }
 
-  if (surveyResult?.user && surveyResult.user.role !== 'admin') {
+  const kpiAllowedRoles = ['admin', 'manager']
+  if (surveyResult?.user && !kpiAllowedRoles.includes(surveyResult.user.role)) {
     throw createError({
       statusCode: 403,
-      statusMessage: 'Faqat admin foydalanuvchi kira oladi',
+      statusMessage: 'Faqat admin va rahbar foydalanuvchilar kira oladi',
     })
   }
 
@@ -54,5 +55,6 @@ export default defineEventHandler(async (event) => {
 
   return {
     user,
+    token: surveyResult?.token || undefined,
   }
 })

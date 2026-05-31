@@ -2,64 +2,37 @@ type ThemeName = 'light' | 'dark'
 
 const storageKey = 'rttm-kpi-theme'
 
-const getSystemTheme = (): ThemeName => {
-	if (!import.meta.client) {
-		return 'light'
-	}
-
-	return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
-}
-
-const readStoredTheme = (): ThemeName => {
-	if (!import.meta.client) {
-		return 'light'
-	}
-
-	const storedTheme = window.localStorage.getItem(storageKey)
-
-	return storedTheme === 'dark' || storedTheme === 'light'
-		? storedTheme
-		: getSystemTheme()
+const getStoredOrDefaultTheme = (): ThemeName => {
+	if (!import.meta.client) return 'dark'
+	const stored = window.localStorage.getItem(storageKey)
+	if (stored === 'dark' || stored === 'light') return stored
+	return 'dark'
 }
 
 const applyTheme = (theme: ThemeName) => {
-	if (!import.meta.client) {
-		return
-	}
-
+	if (!import.meta.client) return
 	document.documentElement.dataset.theme = theme
 	document.documentElement.style.colorScheme = theme
 	window.localStorage.setItem(storageKey, theme)
 }
 
 export const useTheme = () => {
-	const theme = useState<ThemeName>('app-theme', () => 'light')
+	const theme = useState<ThemeName>('app-theme', () => 'dark')
 
-	const setTheme = (nextTheme: ThemeName) => {
-		theme.value = nextTheme
-		applyTheme(nextTheme)
+	const setTheme = (next: ThemeName) => {
+		theme.value = next
+		applyTheme(next)
 	}
 
-	const toggleTheme = () => {
-		setTheme(theme.value === 'dark' ? 'light' : 'dark')
-	}
+	const toggleTheme = () => setTheme(theme.value === 'dark' ? 'light' : 'dark')
 
-	onMounted(() => {
-		setTheme(readStoredTheme())
-	})
+	onMounted(() => setTheme(getStoredOrDefaultTheme()))
 
-	const themeLabel = computed(() => (theme.value === 'dark' ? 'Tun' : 'Kun'))
+	const isDark = computed(() => theme.value === 'dark')
+	const themeLabel = computed(() => isDark.value ? 'Tun' : 'Kun')
 	const themeButtonLabel = computed(() =>
-		theme.value === 'dark'
-			? "Kunduzgi mavzuga o'tish"
-			: "Tungi mavzuga o'tish",
+		isDark.value ? "Kunduzgi rejimga o'tish" : "Tungi rejimga o'tish",
 	)
 
-	return {
-		theme,
-		themeLabel,
-		themeButtonLabel,
-		setTheme,
-		toggleTheme,
-	}
+	return { theme, isDark, themeLabel, themeButtonLabel, setTheme, toggleTheme }
 }
