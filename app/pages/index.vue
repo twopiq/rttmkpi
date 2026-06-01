@@ -40,10 +40,7 @@ const submitLogin = async () => {
 
 			<div class="panel-top">
 				<div class="brand">
-					<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-						stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-						<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-					</svg>
+					<img src="/favicon.svg" alt="RTTM KPI" aria-hidden="true" class="brand-logo" />
 					RTTM KPI
 				</div>
 
@@ -203,10 +200,10 @@ const submitLogin = async () => {
 	text-transform: uppercase;
 }
 
-.brand svg {
-	width: 20px;
-	height: 20px;
-	stroke: var(--kpi-primary);
+.brand-logo {
+	width: 28px;
+	height: 28px;
+	border-radius: 6px;
 }
 
 .theme-btn {

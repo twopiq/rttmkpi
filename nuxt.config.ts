@@ -5,6 +5,9 @@ export default defineNuxtConfig({
   app: {
     head: {
       script: process.env.NODE_ENV === 'production' ? [{ src: '/config.js' }] : [],
+      link: [
+        { rel: 'icon', type: 'image/svg+xml', href: '/favicon.svg' },
+      ],
     },
   },
   devtools: { enabled: process.env.NODE_ENV !== 'production' },
